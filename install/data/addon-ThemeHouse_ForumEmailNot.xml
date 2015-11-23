@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="ThemeHouse_ForumEmailNot" title="[⌂] Forum Email Notifications" version_string="1.0.0" version_id="1447261019" url="http://xf.themehouse.io" install_callback_class="ThemeHouse_Install" install_callback_method="install" uninstall_callback_class="ThemeHouse_Install" uninstall_callback_method="uninstall">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates>
+    <template title="th_forum_edit_forumemailnotify"><![CDATA[<xen:textboxunit name="emails_th" value="{$forum.emails_th}" label="{xen:phrase th_email_notifications_forumemailnotify}:" hint="{xen:phrase optional}">
+	<xen:explain>{xen:phrase th_email_notifications_explain_forumemailnotify}</xen:explain>
+</xen:textboxunit>]]></template>
+  </admin_templates>
+  <admin_template_modifications>
+    <modification template="forum_edit" modification_key="th_forumEdit_forumemailnotify" description="Adds email field to the forum edit page" execution_order="10" enabled="1" action="preg_replace">
+      <find><![CDATA[#(<xen:radiounit label="{xen:phrase forum_watch_notification_limit}:" name="allowed_watch_notifications" value="{\$forum.allowed_watch_notifications}">)#Us]]></find>
+      <replace><![CDATA[<xen:include template="th_forum_edit_forumemailnotify" />
+${0}]]></replace>
+    </modification>
+  </admin_template_modifications>
+  <code_events/>
+  <code_event_listeners>
+    <listener event_id="controller_pre_dispatch" execute_order="10" callback_class="ThemeHouse_Listener_ControllerPreDispatch" callback_method="controllerPreDispatch" active="1" hint="" description=""/>
+    <listener event_id="file_health_check" execute_order="10" callback_class="ThemeHouse_ForumEmailNot_Listener_FileHealthCheck" callback_method="fileHealthCheck" active="1" hint="" description=""/>
+    <listener event_id="init_dependencies" execute_order="10" callback_class="ThemeHouse_Listener_InitDependencies" callback_method="initDependencies" active="1" hint="" description=""/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_ForumEmailNot_Listener_LoadClass" callback_method="loadClassController" active="0" hint="XenForo_ControllerAdmin_Forum" description="XenForo_ControllerAdmin_Forum (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_ForumEmailNot_Listener_LoadClass" callback_method="loadClassDataWriter" active="0" hint="XenForo_DataWriter_Forum" description="XenForo_DataWriter_Forum (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class" execute_order="10" callback_class="ThemeHouse_ForumEmailNot_Listener_LoadClass" callback_method="loadClassDataWriter" active="0" hint="XenForo_DataWriter_DiscussionMessage_Post" description="XenForo_DataWriter_DiscussionMessage_Post (For XenForo 1.2 and above)" compatibility_switch="1"/>
+    <listener event_id="load_class_controller" execute_order="10" callback_class="ThemeHouse_ForumEmailNot_Listener_LoadClass" callback_method="loadClassController" active="1" hint="" description="(For XenForo 1.1 and below)" compatibility_switch="1"/>
+    <listener event_id="load_class_datawriter" execute_order="10" callback_class="ThemeHouse_ForumEmailNot_Listener_LoadClass" callback_method="loadClassDataWriter" active="1" hint="" description="(For XenForo 1.1 and below)" compatibility_switch="1"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates>
+    <template title="th_forum_message_forumemailnotify">
+      <subject><![CDATA[{xen:phrase th_new_message_in_forum_x_forumemailnotify, "title={$thread.titleCensored}"}]]></subject>
+      <body_text><![CDATA[{xen:phrase th_forum_message_email_text_forumemailnotify,
+	"username={$post.username}",
+	"title={xen:helper threadPrefix, $thread, plain}{$thread.title}",
+	"node_title={$thread.node_title}",
+	"view_link={xen:link 'canonical:threads/post-permalink', $thread, 'post={$post}'}",
+	"message={$post.messageText}",
+	"board_link={xen:link 'canonical:index'}",
+	"board_title={$xenOptions.boardTitle}"
+}]]></body_text>
+      <body_html><![CDATA[<p style="margin-top: 0">{xen:phrase th_forum_message_email_html_forumemailnotify,
+	'replier=<a href="{xen:link canonical:members, $post}" style="color: #176093; text-decoration: none">{$post.username}</a>',
+	'board=<a href="{xen:link canonical:index}" style="color: #176093; text-decoration: none">{$xenOptions.boardTitle}</a>'}</p>
+
+<h2 style="font-size: 18pt; font-weight: normal; margin: 10px 0"><a href="{xen:link canonical:threads/post-permalink, $thread, 'post={$post}'}" style="color: #176093; text-decoration: none">{xen:helper threadPrefix, $thread, plain}{$thread.title}</a></h2>
+
+<hr style="height: 1px; margin: 10px 0; border: 0; color: #D7EDFC; background-color: #D7EDFC" />
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 10px 0 20px">
+<tr valign="top">
+	<td style="font-size: 13px; line-height: 1.231; padding-{xen:if $emailIsRtl, left, right}: 20px">
+		<div style="
+			background-color: #D7EDFC;
+			border: 1px solid #D7EDFC;
+			border-radius: 5px">
+			<table cellpadding="0" cellspacing="0" border="0">
+			<tr>
+				<td style="
+					background-color: #F0F7FC;
+					padding: 5px;
+					border-radius: 4px">
+					<a href="{xen:link canonical:members, $post}" title="{$post.username}"
+						><img src="{xen:helper avatar, $post, s, '', 1}" alt="{$post.username}" title="{$post.username}" style="
+							width: 48px;
+							height: 48px;
+							background-color: #FCFCFF;
+							border: 1px solid #A5CAE4;
+							padding: 2px;
+							border-radius: 4px"
+						/></a>
+					</td>
+				</tr>
+			</table>
+			<span style="
+				padding: 3px 5px;
+				display: block"><!--{$post.username}-->&nbsp;</span>
+		</div>
+	</td>
+	<td width="100%" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.4">
+		{xen:raw $post.messageHtml}
+	</td>	
+</tr>
+</table>
+
+<table cellpadding="10" cellspacing="0" border="0" width="100%" style="margin: 20px 0; background-color: #f0f7fc; border-top: 1px solid #d7edfc">
+<tr>
+	<td>
+		<a href="{xen:link canonical:threads/unread, $thread}" style="
+			display: block;
+			float: {xen:if $emailIsRtl, right, left};
+			padding: 5px 10px;
+			background-color: #65a5d1;
+			border: none;
+			border-radius: 3px;
+			font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+			font-size: 11px;
+			color: white;
+			text-decoration: none">{xen:phrase view_this_thread}</a>
+	</td>
+</tr>
+</table>]]></body_html>
+    </template>
+    <template title="th_forum_thread_forumemailnotify">
+      <subject><![CDATA[{xen:phrase th_new_thread_in_forum_x_forumemailnotify, "title={$thread.title}"}]]></subject>
+      <body_text><![CDATA[{xen:phrase th_forum_thread_email_text_forumemailnotify,
+	"username={$post.username}",
+	"title={xen:helper threadPrefix, $thread, plain}{$thread.title}",
+	"node_title={$thread.node_title}",
+	"view_link={xen:link 'canonical:threads/post-permalink', $thread, 'post={$post}'}",
+	"message={$post.messageText}",
+	"board_link={xen:link 'canonical:index'}",
+	"board_title={$xenOptions.boardTitle}"
+}]]></body_text>
+      <body_html><![CDATA[<p style="margin-top: 0">{xen:phrase th_forum_thread_email_html_forumemailnotify,
+	'replier=<a href="{xen:link canonical:members, $post}" style="color: #176093; text-decoration: none">{$post.username}</a>',
+	'board=<a href="{xen:link canonical:index}" style="color: #176093; text-decoration: none">{$xenOptions.boardTitle}</a>'}</p>
+
+<h2 style="font-size: 18pt; font-weight: normal; margin: 10px 0"><a href="{xen:link canonical:threads/post-permalink, $thread, 'post={$post}'}" style="color: #176093; text-decoration: none">{xen:helper threadPrefix, $thread, plain}{$thread.title}</a></h2>
+
+<hr style="height: 1px; margin: 10px 0; border: 0; color: #D7EDFC; background-color: #D7EDFC" />
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 10px 0 20px">
+<tr valign="top">
+	<td style="font-size: 13px; line-height: 1.231; padding-{xen:if $emailIsRtl, left, right}: 20px">
+		<div style="
+			background-color: #D7EDFC;
+			border: 1px solid #D7EDFC;
+			border-radius: 5px">
+			<table cellpadding="0" cellspacing="0" border="0">
+			<tr>
+				<td style="
+					background-color: #F0F7FC;
+					padding: 5px;
+					border-radius: 4px">
+					<a href="{xen:link canonical:members, $post}" title="{$post.username}"
+						><img src="{xen:helper avatar, $post, s, '', 1}" alt="{$post.username}" title="{$post.username}" style="
+							width: 48px;
+							height: 48px;
+							background-color: #FCFCFF;
+							border: 1px solid #A5CAE4;
+							padding: 2px;
+							border-radius: 4px"
+						/></a>
+					</td>
+				</tr>
+			</table>
+			<span style="
+				padding: 3px 5px;
+				display: block"><!--{$post.username}-->&nbsp;</span>
+		</div>
+	</td>
+	<td width="100%" style="font-family: Georgia, 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.4">
+		{xen:raw $post.messageHtml}
+	</td>	
+</tr>
+</table>
+
+<table cellpadding="10" cellspacing="0" border="0" width="100%" style="margin: 20px 0; background-color: #f0f7fc; border-top: 1px solid #d7edfc">
+<tr>
+	<td>
+		<a href="{xen:link canonical:threads/unread, $thread}" style="
+			display: block;
+			float: {xen:if $emailIsRtl, right, left};
+			padding: 5px 10px;
+			background-color: #65a5d1;
+			border: none;
+			border-radius: 3px;
+			font-family: 'Trebuchet MS', Helvetica, Arial, sans-serif;
+			font-size: 11px;
+			color: white;
+			text-decoration: none">{xen:phrase view_this_thread}</a>
+	</td>
+</tr>
+</table>]]></body_html>
+    </template>
+  </email_templates>
+  <email_template_modifications/>
+  <optiongroups>
+    <group group_id="th_forumEmailNotify" display_order="2000" debug_only="0"/>
+    <option option_id="th_forumEmailNotify_notifyForMessages" edit_format="onoff" data_type="boolean" can_backup="1">
+      <default_value>1</default_value>
+      <edit_format_params/>
+      <sub_options/>
+      <relation group_id="th_forumEmailNotify" display_order="10"/>
+    </option>
+  </optiongroups>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="option_group_th_forumEmailNotify" version_id="1403978032" version_string="1.0.0"><![CDATA[Forum Email Notifications by ThemeHouse]]></phrase>
+    <phrase title="option_group_th_forumEmailNotify_description" version_id="1403978032" version_string="1.0.0"><![CDATA[Options for the Forum Email Notifications by ThemeHouse add-on]]></phrase>
+    <phrase title="option_th_forumEmailNotify_notifyForMessages" version_id="1403978032" version_string="1.0.0"><![CDATA[Send Emails for Posts]]></phrase>
+    <phrase title="option_th_forumEmailNotify_notifyForMessages_explain" version_id="1403978032" version_string="1.0.0"><![CDATA[When ticked email notifications will be sent for every message in ticked forums.]]></phrase>
+    <phrase title="th_email_notifications_explain_forumemailnotify" version_id="1403975528" version_string="1.0.0"><![CDATA[Email addresses added here will be notified when new threads or messages are created in this forum. <br/>
+Comma separated list required. ]]></phrase>
+    <phrase title="th_email_notifications_forumemailnotify" version_id="1403975528" version_string="1.0.0"><![CDATA[Emails to Notify]]></phrase>
+    <phrase title="th_forum_message_email_html_forumemailnotify" version_id="1404413037" version_string="1.0.0"><![CDATA[Hi, {replier} posted a new message in a forum you are monitoring at {board}.]]></phrase>
+    <phrase title="th_forum_message_email_text_forumemailnotify" version_id="1404413037" version_string="1.0.0"><![CDATA[Hi,
+
+{username} posted a new message in a forum you are watching at {board_title}.
+
+	"{title}"
+
+This is the message they posted:
+----------------------------------------------------------------------
+{message}
+----------------------------------------------------------------------
+
+To view this thread, click here:
+{view_link}
+
+You will not receive any further emails about this thread until you have read the new messages.
+
+----------------------------------------------------------------------
+
+This message was sent to you because you opted to watch the forum "{node_title}" at {board_title} with email notification of new messages.
+
+{board_link}]]></phrase>
+    <phrase title="th_forum_thread_email_html_forumemailnotify" version_id="1404413037" version_string="1.0.0"><![CDATA[Hi, {replier} posted a new thread in a forum you are monitoring at {board}.]]></phrase>
+    <phrase title="th_forum_thread_email_text_forumemailnotify" version_id="1403978032" version_string="1.0.0"><![CDATA[Hi,
+
+{username} posted a new thread in a forum you are monitoring at {board_title}.
+
+	"{title}"
+
+This is the message they posted:
+----------------------------------------------------------------------
+{message}
+----------------------------------------------------------------------
+
+To view this thread, click here:
+{view_link}
+
+----------------------------------------------------------------------
+
+{board_link}]]></phrase>
+    <phrase title="th_new_message_in_forum_x_forumemailnotify" version_id="1403978032" version_string="1.0.0"><![CDATA[New message in forum {title}]]></phrase>
+    <phrase title="th_new_thread_in_forum_x_forumemailnotify" version_id="1403978032" version_string="1.0.0"><![CDATA[{title} - New thread in forum]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates/>
+  <public_template_modifications>
+    <modification template="footer" modification_key="th_copyrightNotice_forumEmailNot" description="Copyright notice for [⌂] Forum Email Notifications" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+    <modification template="footer" modification_key="th_copyrightNotice_forumEmailNotify" description="Copyright notice for Forum Email Notifications by ThemeHouse" execution_order="1" enabled="1" action="callback">
+      <find><![CDATA[/{xen:phrase (?:xenforo|extra)_copyright}/]]></find>
+      <replace><![CDATA[ThemeHouse_Listener_InitDependencies::copyrightNotice]]></replace>
+    </modification>
+  </public_template_modifications>
+  <bb_code_media_sites/>
+  <bb_codes/>
+</addon>
